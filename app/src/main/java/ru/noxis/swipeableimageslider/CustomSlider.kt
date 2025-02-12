@@ -1,22 +1,28 @@
 package ru.noxis.swipeableimageslider
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -57,11 +63,12 @@ fun CustomSlider(
     val scope = rememberCoroutineScope()
 
     Column(
+        modifier = modifier.fillMaxSize().then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Row(
-            modifier = modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -79,7 +86,7 @@ fun CustomSlider(
             HorizontalPager(
                 state = pagerState,
                 contentPadding = pagerPaddingValues,
-                modifier = modifier.weight(1f)
+                modifier = Modifier.weight(1f)
             ) { page ->
                 val pageOffset =
                     (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
@@ -87,7 +94,7 @@ fun CustomSlider(
                 val scaleFactor = 0.75f + (1f - 0.75f) * (1f - pageOffset.absoluteValue)
 
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .graphicsLayer {
                             scaleX = scaleFactor
                             scaleY = scaleFactor
@@ -102,8 +109,8 @@ fun CustomSlider(
                         contentDescription = "Image",
                         contentScale = ContentScale.Crop,
                         // placeholder = painterResource(id = R.drawable.img),
-                        modifier = modifier.height(imageHeight)
-//                            .alpha(if (pagerState.currentPage == page) 1f else 0.5f)
+                        modifier = Modifier.height(imageHeight)
+                            .alpha(if (pagerState.currentPage == page) 1f else 0.5f)
                     )
                 }
             }
@@ -118,6 +125,26 @@ fun CustomSlider(
                 Icon(imageVector = forwardIcon, contentDescription = "forward")
             }
         }
-
+        Row(
+            Modifier
+                .height(50.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(sliderList.size) {
+                val color = if (pagerState.currentPage == it) dotsActiveColor else dotsInActiveColor
+                Box(modifier = Modifier
+                    .padding(2.dp)
+                    .clip(CircleShape)
+                    .size(dotsSize)
+                    .background(color)
+                    .clickable {
+                        scope.launch {
+                            pagerState.animateScrollToPage(it)
+                        }
+                    }
+                )
+            }
+        }
     }
 }
