@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -26,12 +28,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -49,7 +51,9 @@ fun CustomSlider(
     imageHeight: Dp = 250.dp,
 ) {
 
-    val pagerState = rememberPagerState { sliderList.size }
+    val pagerState = rememberPagerState {
+        sliderList.size
+    }
     val scope = rememberCoroutineScope()
 
     Column(
@@ -61,6 +65,17 @@ fun CustomSlider(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
+            IconButton(
+                enabled = pagerState.canScrollBackward,
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    }
+                }
+            ) {
+                Icon(imageVector = backwardIcon, contentDescription = "back")
+            }
+
             HorizontalPager(
                 state = pagerState,
                 contentPadding = pagerPaddingValues,
@@ -72,25 +87,37 @@ fun CustomSlider(
                 val scaleFactor = 0.75f + (1f - 0.75f) * (1f - pageOffset.absoluteValue)
 
                 Box(
-                    modifier = modifier.graphicsLayer {
-                        scaleX = scaleFactor
-                        scaleY = scaleFactor
-                    }
-                    .alpha(scaleFactor.coerceIn(0f, 1f))
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(imageCornerRadius))
+                    modifier = modifier
+                        .graphicsLayer {
+                            scaleX = scaleFactor
+                            scaleY = scaleFactor
+                        }
+                        .alpha(scaleFactor.coerceIn(0f, 1f))
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(imageCornerRadius))
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current).scale(Scale.FILL)
                             .crossfade(true).data(sliderList[page]).build(),
                         contentDescription = "Image",
                         contentScale = ContentScale.Crop,
-                       // placeholder = painterResource(id = R.drawable.img),
+                        // placeholder = painterResource(id = R.drawable.img),
                         modifier = modifier.height(imageHeight)
 //                            .alpha(if (pagerState.currentPage == page) 1f else 0.5f)
                     )
                 }
             }
+            IconButton(
+                enabled = pagerState.currentPage != sliderList.size - 1,
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+                }
+            ) {
+                Icon(imageVector = forwardIcon, contentDescription = "forward")
+            }
         }
+
     }
 }
