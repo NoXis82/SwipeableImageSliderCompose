@@ -30,10 +30,12 @@ class MainActivity : ComponentActivity() {
                             "https://www.gstatic.com/webp/gallery/5.webp",
                         )
                     }
-                    CustomSlider(
-                        modifier = Modifier.padding(innerPadding),
-                        sliderList = sliderList
-                    )
+//                    CustomSlider(
+//                        modifier = Modifier.padding(innerPadding),
+//                        sliderList = sliderList
+//                    )
+
+                    PageNavigateTest(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
